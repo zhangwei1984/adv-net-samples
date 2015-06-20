@@ -20,29 +20,29 @@ void usage() {
 }
 
 void set_default_srcmac(struct ether_header *eth) {
-	eth->ether_shost[0] = 0x90; 
-	eth->ether_shost[1] = 0xe2;
-	eth->ether_shost[2] = 0xba;
-	eth->ether_shost[3] = 0x4a;
-	eth->ether_shost[4] = 0xe6;
-	eth->ether_shost[5] = 0x2f;
+	eth->ether_shost[0] = 0x68; 
+	eth->ether_shost[1] = 0x05;
+	eth->ether_shost[2] = 0xca;
+	eth->ether_shost[3] = 0x30;
+	eth->ether_shost[4] = 0x52;
+	eth->ether_shost[5] = 0xcc;
 }
 	
 void set_default_dstmac(struct ether_header *eth) {
-	eth->ether_dhost[0] = 0xec;
-	eth->ether_dhost[1] = 0xf4;
-	eth->ether_dhost[2] = 0xbb;
-	eth->ether_dhost[3] = 0xc8;
-	eth->ether_dhost[4] = 0x99;
-	eth->ether_dhost[5] = 0x88;
+	eth->ether_dhost[0] = 0x90;
+	eth->ether_dhost[1] = 0xe2;
+	eth->ether_dhost[2] = 0xba;
+	eth->ether_dhost[3] = 0x4a;
+	eth->ether_dhost[4] = 0xe8;
+	eth->ether_dhost[5] = 0x08;
 }
 
 void set_default_srcip(struct iphdr *iph) {
-	iph->saddr = inet_addr("10.1.1.25");
+	iph->saddr = inet_addr("10.1.1.26");
 }
 
 void set_default_dstip(struct iphdr *iph) {
-	iph->daddr = inet_addr("10.1.1.27");
+	iph->daddr = inet_addr("10.1.1.23");
 }
 
 void set_default_srcudp(struct udphdr *udph) {
@@ -57,7 +57,7 @@ void set_default_msgsize(int *size) {
 }
 
 void set_default_ethname(char *ethname) {
-	strncpy(ethname, "p2p2", IFNAMSIZ-1);
+	strncpy(ethname, "p2p1", IFNAMSIZ-1);
 }
 
 unsigned short csum(unsigned short *buf, int nwords)
@@ -82,6 +82,9 @@ int main(int argc, char **argv) {
 	struct ifreq if_idx;
 	struct pseudo_hdr psh;
 	char  *pseudogram;
+	int data_size, addr_size;
+	struct sockaddr addr;
+	unsigned char *recvbuf = (unsigned char *)malloc(65536); //Its Big!
 
 	memset(&if_idx, 0, sizeof(struct ifreq));
 
@@ -214,7 +217,13 @@ int main(int argc, char **argv) {
 			perror("send");
 			exit(1);
 		}
-		printf("sending out\n");
+		data_size = recvfrom(sockfd, recvbuf, 65536 , 0 , (struct sockaddr*)&addr, &addr_size);
+		printf("recev message.\n");
+		if (data_size < 0) {
+			perror("recv");
+			exit(1);
+		}
+//		printf("sending out\n");
 		usleep(SLEEPUS);
 	}
 
